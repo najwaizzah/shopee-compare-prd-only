@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopee Product Comparison - PRD Only Version</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #f0f2f5;
+      color: #333;
+      padding-bottom: 90px;
+    }
+    header {
+      background-color: #ee4d2d;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      font-size: 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 20px auto;
+      padding: 0 15px;
+    }
+    .info-banner {
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      color: #856404;
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 15px;
+    }
+    .product-card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .product-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: contain;
+      background: #fafafa;
+      margin-bottom: 12px;
+    }
+    .product-card h3 {
+      font-size: 15px;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      height: 40px;
+      overflow: hidden;
+    }
+    .price {
+      color: #d9534f;
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .rating-sold {
+      font-size: 12px;
+      color: #777;
+      margin-bottom: 12px;
+    }
+    .compare-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+    .compare-label input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    /* Floating Bar */
+    .floating-tray {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #333;
+      color: white;
+      padding: 12px 30px;
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    .tray-items {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .tray-thumb {
+      width: 45px;
+      height: 45px;
+      background: white;
+      border-radius: 4px;
+      object-fit: cover;
+      border: 1px solid #555;
+    }
+    .tray-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 9px 18px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .btn-secondary {
+      background: #666;
+      color: white;
+    }
+    .btn-primary {
+      background: #ee4d2d;
+      color: white;
+    }
+    .btn-primary:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 2000;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .modal-content {
+      background: white;
+      max-width: 1000px;
+      margin: 20px auto;
+      border-radius: 6px;
+      padding: 20px;
+      position: relative;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    .close-btn {
+      font-size: 26px;
+      cursor: pointer;
+      color: #666;
+      border: none;
+      background: none;
+    }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .compare-table th, .compare-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+      font-size: 13px;
+      vertical-align: top;
+    }
+    .compare-table th {
+      background-color: #f7f7f7;
+      width: 180px;
+      font-weight: bold;
+    }
+    .compare-img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 8px;
+    }
+    .table-btn {
+      display: block;
+      width: 100%;
+      padding: 7px;
+      background: #ee4d2d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-top: 8px;
+      text-align: center;
+    }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #28a745;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      display: none;
+      z-index: 3000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Shopee - Katalog Produk TWS (PRD Only Demo)</h1>
+    <span>Proyek Vibe Code #1</span>
+  </header>
+
+  <div class="container">
+    <div class="info-banner">
+      <strong>Catatan Implementasi:</strong> Prototipe ini dibuat murni berdasarkan instruksi <strong>PRD (Product Requirements Document)</strong> tanpa tambahan panduan sistem desain eksternal. Mendukung pemilihan 2 - 4 produk dan tabel perbandingan spesifikasi.
+    </div>
+
+    <h2>Daftar Produk Earphone / TWS Bluetooth</h2>
+    <p style="margin-bottom: 15px; color: #666; font-size: 14px;">Centang kotak "Bandingkan" pada 2 hingga 4 produk untuk membandingkan.</p>
+
+    <div class="product-grid" id="productGrid">
+      <!-- Produk diisi via JavaScript -->
+    </div>
+  </div>
+
+  <!-- Floating Tray -->
+  <div class="floating-tray" id="floatingTray">
+    <div class="tray-items">
+      <span id="trayCountText">Produk dipilih (0/4):</span>
+      <div id="trayThumbnails" style="display: flex; gap: 6px;"></div>
+    </div>
+    <div class="tray-actions">
+      <button class="btn btn-secondary" onclick="clearSelection()">Hapus Semua</button>
+      <button class="btn btn-primary" id="btnCompare" disabled onclick="openComparisonModal()">Bandingkan Sekarang (0)</button>
+    </div>
+  </div>
+
+  <!-- Modal Perbandingan -->
+  <div class="modal" id="compareModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Tabel Perbandingan Produk</h2>
+        <button class="close-btn" onclick="closeComparisonModal()">&times;</button>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="compare-table" id="comparisonTable">
+          <!-- Diisi via JavaScript -->
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">Produk berhasil ditambahkan ke keranjang!</div>
+
+  <script>
+    // Data dummy produk TWS
+    const products = [
+      {
+        id: 1,
+        name: "Baseus Bowie WM02 TWS Earphone Wireless Bluetooth 5.3",
+        price: 189000,
+        originalPrice: 350000,
+        rating: 4.8,
+        sold: "10rb+",
+        shop: "Baseus Official Shop (Mall)",
+        battery: "25 Jam (Total)",
+        bluetooth: "v5.3",
+        driver: "10mm Dynamic",
+        anc: "Tidak Ada (ENC Only)",
+        latency: "60ms Rendah",
+        waterproof: "IPX4 Tahan Percikan",
+        warranty: "12 Bulan Resmi",
+        image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=300&auto=format&fit=crop&q=60"
+      },
+      {
+        id: 2,
+        name: "Soundcore by Anker R50i True Wireless Earbuds Bass",
+        price: 199000,
+        originalPrice: 399000,
+        rating: 4.9,
+        sold: "25rb+",
+        shop: "Anker Official Mall",
+        battery: "30 Jam (Total)",
+        bluetooth: "v5.3",
+        driver: "10mm Extra Bass",
+        anc: "Tidak Ada (App EQ Support)",
+        latency: "80ms",
+        waterproof: "IPX5 Tahan Keringat",
+        warranty: "18 Bulan Resmi",
+        image: "https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=300&auto=format&fit=crop&q=60"
+      },
+      {
+        id: 3,
+        name: "Lenovo Thinkplus LP40 Pro TWS Wireless Earphone HiFi",
+        price: 99000,
+        originalPrice: 220000,
+        rating: 4.6,
+        sold: "50rb+",
+        shop: "Lenovo Audio Star+",
+        battery: "20 Jam (Total)",
+        bluetooth: "v5.1",
+        driver: "13mm Composite",
+        anc: "Tidak Ada",
+        latency: "100ms",
+        waterproof: "IPX4",
+        warranty: "6 Bulan Distributor",
+        image: "https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=300&auto=format&fit=crop&q=60"
+      },
+      {
+        id: 4,
+        name: "realme Buds T100 True Wireless ANC ENC Low Latency",
+        price: 249000,
+        originalPrice: 399000,
+        rating: 4.8,
+        sold: "8rb+",
+        shop: "realme Official Store",
+        battery: "28 Jam (Total)",
+        bluetooth: "v5.3",
+        driver: "10mm Bass Boost",
+        anc: "AI ENC Noise Cancel",
+        latency: "88ms Super Low",
+        waterproof: "IPX5",
+        warranty: "12 Bulan Resmi",
+        image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=300&auto=format&fit=crop&q=60"
+      },
+      {
+        id: 5,
+        name: "Xiaomi Redmi Buds 4 Active TWS Fast Pair Google",
+        price: 199000,
+        originalPrice: 299000,
+        rating: 4.7,
+        sold: "15rb+",
+        shop: "Xiaomi Official Store",
+        battery: "28 Jam (Total)",
+        bluetooth: "v5.3",
+        driver: "12mm Dynamic Driver",
+        anc: "Noise Cancellation for Calls",
+        latency: "90ms",
+        waterproof: "IPX4",
+        warranty: "12 Bulan Resmi",
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&auto=format&fit=crop&q=60"
+      },
+      {
+        id: 6,
+        name: "Edifier X3s True Wireless Stereo Earbuds Qualcomm aptX",
+        price: 329000,
+        originalPrice: 550000,
+        rating: 4.9,
+        sold: "6rb+",
+        shop: "Edifier Flagship Mall",
+        battery: "28 Jam (Total)",
+        bluetooth: "v5.2 aptX",
+        driver: "8mm Micro Dynamic",
+        anc: "cVc 8.0 Mic Clear",
+        latency: "75ms Gaming Mode",
+        waterproof: "IP55 Debu & Air",
+        warranty: "12 Bulan Resmi",
+        image: "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=300&auto=format&fit=crop&q=60"
+      }
+    ];
+
+    let selectedProductIds = [];
+
+    // Render Produk
+    function renderProductGrid() {
+      const grid = document.getElementById("productGrid");
+      grid.innerHTML = products.map(p => {
+        const isChecked = selectedProductIds.includes(p.id);
+        return `
+          <div class="product-card">
+            <img src="${p.image}" alt="${p.name}">
+            <h3>${p.name}</h3>
+            <div class="price">Rp${p.price.toLocaleString("id-ID")}</div>
+            <div class="rating-sold">⭐ ${p.rating} | Terjual ${p.sold} | ${p.shop}</div>
+            <label class="compare-label">
+              <input type="checkbox" onchange="toggleCompare(${p.id})" ${isChecked ? 'checked' : ''}>
+              <span>Bandingkan</span>
+            </label>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Toggle Checkbox Bandingkan
+    function toggleCompare(id) {
+      const index = selectedProductIds.indexOf(id);
+      if (index > -1) {
+        selectedProductIds.splice(index, 1);
+      } else {
+        if (selectedProductIds.length >= 4) {
+          alert("Maksimal 4 produk untuk dibandingkan!");
+          renderProductGrid();
+          return;
+        }
+        selectedProductIds.push(id);
+      }
+      updateTray();
+    }
+
+    // Update Floating Tray
+    function updateTray() {
+      const tray = document.getElementById("floatingTray");
+      const btnCompare = document.getElementById("btnCompare");
+      const trayCountText = document.getElementById("trayCountText");
+      const trayThumbnails = document.getElementById("trayThumbnails");
+
+      if (selectedProductIds.length > 0) {
+        tray.style.display = "flex";
+        trayCountText.textContent = `Produk dipilih (${selectedProductIds.length}/4):`;
+        btnCompare.textContent = `Bandingkan Sekarang (${selectedProductIds.length})`;
+        btnCompare.disabled = selectedProductIds.length < 2;
+
+        trayThumbnails.innerHTML = selectedProductIds.map(id => {
+          const item = products.find(p => p.id === id);
+          return `<img src="${item.image}" class="tray-thumb" title="${item.name}">`;
+        }).join('');
+      } else {
+        tray.style.display = "none";
+      }
+    }
+
+    // Clear Selection
+    function clearSelection() {
+      selectedProductIds = [];
+      renderProductGrid();
+      updateTray();
+    }
+
+    // Open Comparison Modal
+    function openComparisonModal() {
+      if (selectedProductIds.length < 2) return;
+      const modal = document.getElementById("compareModal");
+      const table = document.getElementById("comparisonTable");
+
+      const selectedItems = selectedProductIds.map(id => products.find(p => p.id === id));
+
+      let html = `
+        <tr>
+          <th>Informasi Produk</th>
+          ${selectedItems.map(p => `
+            <td style="text-align: center;">
+              <img src="${p.image}" class="compare-img">
+              <strong>${p.name}</strong>
+              <div style="color: #ee4d2d; font-size: 16px; font-weight: bold; margin: 6px 0;">
+                Rp${p.price.toLocaleString("id-ID")}
+              </div>
+              <button class="table-btn" onclick="addToCart('${p.name}')">Masukkan Keranjang</button>
+            </td>
+          `).join('')}
+        </tr>
+        <tr>
+          <th>Toko & Reputasi</th>
+          ${selectedItems.map(p => `<td>${p.shop}</td>`).join('')}
+        </tr>
+        <tr>
+          <th>Rating & Penjualan</th>
+          ${selectedItems.map(p => `<td>⭐ ${p.rating} / 5.0 (Terjual ${p.sold})</td>`).join('')}
+        </tr>
+        <tr>
+          <th>Daya Tahan Baterai</th>
+          ${selectedItems.map(p => `<td>${p.battery}</td>`).join('')}
+        </tr>
+        <tr>
+          <th>Versi Bluetooth</th>
+          ${selectedItems.map(p => `<td>${p.bluetooth}</td>`).join('')}
+        </tr>
+        <tr>
+          <th>Driver Audio</th>
+          ${selectedItems.map(p => `<td>${p.driver}</td>`).join('')}
+        </tr>
+        <tr>
+          <th>Peredam Bising (ANC)</th>
+          ${selectedItems.map(p => `<td>${p.anc}</td>`).join('')}
+        </tr>
+        <tr>
+          <th>Latensi Gaming</th>
+          ${selectedItems.map(p => `<td>${p.latency}</td>`).join('')}
+        </tr>
+        <tr>
+          <th>Ketahanan Air (IPX)</th>
+          ${selectedItems.map(p => `<td>${p.waterproof}</td>`).join('')}
+        </tr>
+        <tr>
+          <th>Masa Garansi</th>
+          ${selectedItems.map(p => `<td>${p.warranty}</td>`).join('')}
+        </tr>
+      `;
+
+      table.innerHTML = html;
+      modal.style.display = "block";
+    }
+
+    // Close Modal
+    function closeComparisonModal() {
+      document.getElementById("compareModal").style.display = "none";
+    }
+
+    // Toast
+    function addToCart(name) {
+      const toast = document.getElementById("toast");
+      toast.textContent = `"${name}" berhasil dimasukkan ke keranjang!`;
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 2500);
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById("compareModal");
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+
+    // Init
+    renderProductGrid();
+  </script>
+</body>
+</html>
