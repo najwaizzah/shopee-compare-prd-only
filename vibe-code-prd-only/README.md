@@ -27,13 +27,6 @@ Prototipe ini membuktikan bagaimana LLM/AI Assistant menerjemahkan kebutuhan fun
 
 ---
 
-## 🏃 Cara Menjalankan
-1. *Clone* atau unduh repositori ini.
-2. Buka berkas `index.html` langsung dengan klik dua kali (atau klik kanan > *Open with Google Chrome / Microsoft Edge*).
-3. Anda juga dapat menjalankannya di VS Code menggunakan ekstensi *Live Server*.
-
----
-
 ## 🔍 Evaluasi Hasil "PRD Only" dari Sudut Pandang UX
 Meskipun prototipe ini **100% memenuhi persyaratan fungsional (FR)**:
 1. **Visual Branding:** Tampilan menggunakan gaya CSS generik, belum mengadopsi bahasa desain resmi Shopee secara presisi (seperti lencana Shopee Mall/Star+, diskon ribbon, dan font SF Pro/Inter).
